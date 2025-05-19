@@ -107,8 +107,8 @@
         cevap: "İSRAİL"
       },
       {
-        soru: "Kudüs’te yer alan ve Müslümanların ilk kıblesi olan kutsal mabedin adı nedir?",
-        cevap: "AKSA"
+        soru: "Kudüs’te yer alan ve Müslümanların ilk kıblesi olan kutsal yerin adı nedir?",
+        cevap: "MESCİDİAKSA"
       },
       {
         soru: "Filistin direnişinin askeri ve siyasi gücü olan ve Gazze'de etkin olan hareketin adı nedir?",
@@ -125,6 +125,18 @@
       {
         soru: "Filistin’in abluka altındaki ve en yoğun saldırıya uğrayan bölgesinin adı nedir?",
         cevap: "GAZZE"
+      },
+      {
+        soru: "Filistin zulmünü yapan israil'in ürünlerini almama durumunun adı nedir?",
+        cevap: "BOYKOT"
+      },
+      {
+        soru: "Filistin bayrağındaki kırmızı, siyah, beyaz ve bir sonraki rengin adı nedir?",
+        cevap: "YEŞİL"
+      },
+      {
+        soru: "Filistin'nin başkenti neresidir?",
+        cevap: "KUDÜS"
       }
     ];
 
@@ -169,14 +181,14 @@
           if (mevcutIndex < sorular.length) {
             soruYukle();
           } else {
-            questionText.textContent = "Tebrikler, tüm soruları tamamladınız! 🇵🇸";
+            questionText.textContent = "Tebrikler, tüm soruları tamamladınız! ";
             letterBoxes.innerHTML = "";
             answerInput.style.display = "none";
           }
           resultDiv.textContent = "";
         }, 1000);
       } else {
-        resultDiv.textContent = "Yanlış cevap. Tekrar dene.";
+        resultDiv.textContent = "Yanlış cevap. Tekrar dene! ";
       }
     }
 
