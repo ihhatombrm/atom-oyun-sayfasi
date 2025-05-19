@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bilmece Testi</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive;
+      background-image: url('karpuz.jpg');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 2rem;
+      margin: 2rem auto;
+      border-radius: 20px;
+      max-width: 800px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #ff0; }
+      to   { text-shadow: 0 0 20px #f00, 0 0 30px #ff0; }
+    }
+
+    .question {
+      font-size: 1.4rem;
+      margin: 1.5rem 0;
+    }
+
+    .letter-boxes {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .box {
+      width: 40px;
+      height: 50px;
+      background-color: white;
+      color: black;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      font-weight: bold;
+      text-align: center;
+      line-height: 50px;
+      border-radius: 5px;
+    }
+
+    input {
+      font-size: 1.2rem;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      width: 250px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    button {
+      font-size: 1rem;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: none;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+
+    #result {
+      font-size: 1.3rem;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Bilmece Testi</h1>
+    <div class="question" id="questionText"></div>
+    <div class="letter-boxes" id="letterBoxes"></div>
+    <input type="text" id="answerInput" placeholder="Cevabınızı yazın" oninput="updateBoxes(this.value)">
+    <br>
+    <button onclick="checkAnswer()">Cevapla</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const sorular = [
+      {
+        soru: "Filistin topraklarını işgal eden ve uluslararası hukuka aykırı olarak yerleşimlerini sürdüren devletin adı nedir?",
+        cevap: "İSRAİL"
+      },
+      {
+        soru: "Kudüs’te yer alan ve Müslümanların ilk kıblesi olan kutsal mabedin adı nedir?",
+        cevap: "AKSA"
+      },
+      {
+        soru: "Filistin direnişinin askeri ve siyasi gücü olan ve Gazze'de etkin olan hareketin adı nedir?",
+        cevap: "HAMAS"
+      },
+      {
+        soru: "Filistin davasının sembolü haline gelmiş siyah beyaz desenli başörtüsü nedir?",
+        cevap: "KEFİYE"
+      },
+      {
+        soru: "1948’de İsrail’in kuruluşunun ardından milyonlarca Filistinlinin sürüldüğü olayın adı nedir?",
+        cevap: "NEKBE"
+      },
+      {
+        soru: "Filistin’in abluka altındaki ve en yoğun saldırıya uğrayan bölgesinin adı nedir?",
+        cevap: "GAZZE"
+      }
+    ];
+
+    let mevcutIndex = 0;
+
+    const questionText = document.getElementById("questionText");
+    const letterBoxes = document.getElementById("letterBoxes");
+    const answerInput = document.getElementById("answerInput");
+    const resultDiv = document.getElementById("result");
+
+    function soruYukle() {
+      const aktifSoru = sorular[mevcutIndex];
+      questionText.textContent = aktifSoru.soru;
+      letterBoxes.innerHTML = "";
+      answerInput.value = "";
+      resultDiv.textContent = "";
+
+      for (let i = 0; i < aktifSoru.cevap.length; i++) {
+        const span = document.createElement("span");
+        span.classList.add("box");
+        span.textContent = "";
+        letterBoxes.appendChild(span);
+      }
+    }
+
+    function updateBoxes(yazi) {
+      const kutular = document.querySelectorAll(".box");
+      yazi = yazi.toUpperCase();
+      for (let i = 0; i < kutular.length; i++) {
+        kutular[i].textContent = yazi[i] ? yazi[i] : "";
+      }
+    }
+
+    function checkAnswer() {
+      const kullaniciCevap = answerInput.value.trim().toUpperCase();
+      const dogruCevap = sorular[mevcutIndex].cevap.toUpperCase();
+
+      if (kullaniciCevap === dogruCevap) {
+        resultDiv.textContent = "Doğru cevap! ✅";
+        mevcutIndex++;
+        setTimeout(() => {
+          if (mevcutIndex < sorular.length) {
+            soruYukle();
+          } else {
+            questionText.textContent = "Tebrikler, tüm soruları tamamladınız! 🇵🇸";
+            letterBoxes.innerHTML = "";
+            answerInput.style.display = "none";
+          }
+          resultDiv.textContent = "";
+        }, 1000);
+      } else {
+        resultDiv.textContent = "Yanlış cevap. Tekrar dene.";
+      }
+    }
+
+    soruYukle();
+  </script>
+
+</body>
+</html>

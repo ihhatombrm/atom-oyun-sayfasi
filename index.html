@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATOM OYUN SAYFASI️</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white;
+      text-shadow: 2px 2px 4px #000;
+      min-height: 100vh;
+      background-image: url('kids.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow-x: hidden;
+    }
+
+    h2, h3, p, button, input, .kelime, .destek {
+      font-weight: bold;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+
+    h2 {
+      font-size: 2rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      font-size: 22px;
+      width: 100px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .kelime {
+      font-size: 32px;
+      letter-spacing: 12px;
+    }
+
+    #durum, #uzaySonuc {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    header {
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 1rem;
+      width: 100%;
+      text-align: center;
+      font-size: 2.2rem;
+      position: relative;
+      z-index: 1;
+      animation: colorCycle 2s infinite alternate;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      animation: spin 2s infinite linear;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes colorCycle {
+      0% { color: #FF0000; }
+      25% { color: #FFFF00; }
+      50% { color: #00FF00; }
+      75% { color: #00FFFF; }
+      100% { color: #FF0000; }
+    }
+
+    footer {
+      font-size: 0.8rem;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 1rem;
+      width: 100%;
+      text-align: center;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    main {
+      margin: 2rem;
+      width: 90%;
+      max-width: 1000px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 2rem;
+      border-radius: 20px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .button-container {
+      margin: 30px 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .game-button {
+      border: none;
+      color: white;
+      padding: 20px 30px;
+      font-size: 1.4rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      min-width: 220px;
+    }
+
+    .game-button:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-bardak { background: #FFB347; }
+    .btn-tetris { background: #77DD77; }
+    .btn-uzay { background: #89CFF0; }
+    .btn-muz{ background: #A785FF; }
+
+
+    .game-container {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .bardak {
+      font-size: 80px;
+      margin-top: 20px;
+      transition: transform 0.5s;
+    }
+
+    .destekler {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .destek {
+      font-size: 40px;
+      margin: 0 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="atom-icon.png" alt="Atom Simge"> ATOM OYUN DÜNYASI
+  </header>
+
+  <main>
+    <h2>Hoş Geldin Oyuncu 😊</h2>
+    <p>Bir oyun seçmek için aşağıdaki butonlardan birine tıkla 🎮</p>
+    <div class="button-container">
+      <button class="game-button btn-tetris" onclick="window.open('çocuk.html', '_blank')"> 🟪Tetris</button>
+      <button class="game-button btn-bardak" onclick="showGame('adamAsmaca')"> 🥤Bardağı Düşürme </button>
+       <button class="game-button btn-muz" onclick="window.open('muz_oyunu.html', '_blank')">🍌Muzdan Kaç</button>
+      <button class="game-button btn-uzay" onclick="window.open('kutucuk.html', '_blank')"> 🔎Bilmece Testi </button>
+
+
+
+    </div>
+
+    <div class="game-container" id="adamAsmaca">
+      <h3>🥤 Bardağı Düşürme Oyunu</h3>
+      <div class="bardak" id="bardak">🥤</div>
+      <div class="destekler" id="destekler"></div>
+      <div class="kelime" id="kelime">_ _ _ _ _</div>
+      <input type="text" id="harf" maxlength="1" placeholder="Harf">
+      <button onclick="tahminEt()">Tahmin Et</button>
+      <p id="durum"></p>
+      <button onclick="geriDon()" style="margin-top: 20px;">🔙 Geri Dön</button>
+    </div>
+
+    <div class="game-container" id="tetris">
+      <h3>🟪 Tetris (Yakında!)</h3>
+      <p>Tetris oyunu buraya eklenecek.</p>
+      <button onclick="geriDon()" style="margin-top: 20px;">🔙 Geri Dön</button>
+    </div>
+
+    <div class="game-container" id="uzayBilmece">
+      <h3>🔭 Uzay Bilmece</h3>
+      <p>Gezegenlerden biri kırmızı... hangisi?</p>
+      <input type="text" id="uzayInput" placeholder="Cevabı yaz">
+      <button onclick="checkUzay()">Cevapla</button>
+      <div id="uzaySonuc"></div>
+      <button onclick="geriDon()" style="margin-top: 20px;">🔙 Geri Dön</button>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 İHH Ankara ATOM Birimi
+  </footer>
+
+  <script>
+    function showGame(gameId) {
+      const games = document.getElementsByClassName('game-container');
+      for (let game of games) {
+        game.style.display = 'none';
+      }
+      document.getElementById(gameId).style.display = 'block';
+
+      if (gameId === "adamAsmaca") {
+        oyunuSifirla();
+      }
+    }
+
+    function geriDon() {
+      const games = document.getElementsByClassName('game-container');
+      for (let game of games) {
+        game.style.display = 'none';
+      }
+    }
+
+    const kelimeler = ["GAZZE", "YAZILIM", "KODLAMA", "KIBLE", "KLAVYE", "KARDEŞLİK", "İNTERNET", "KUDÜS", "VERİTABANI", "İYİLİK"];
+    let kelimeIndex = 0;
+    let gizliKelime = kelimeler[kelimeIndex].toUpperCase();
+    let gorunenKelime = Array(gizliKelime.length).fill("_");
+    let kalanHak = 6;
+
+    function destekleriYenile() {
+      const destekDiv = document.getElementById("destekler");
+      destekDiv.innerHTML = "";
+      for (let i = 0; i < kalanHak; i++) {
+        const span = document.createElement("span");
+        span.className = "destek";
+        span.textContent = "🙂";
+        destekDiv.appendChild(span);
+      }
+    }
+
+    function oyunuSifirla() {
+      gizliKelime = kelimeler[kelimeIndex].toUpperCase();
+      gorunenKelime = Array(gizliKelime.length).fill("_");
+      kalanHak = 4;
+      document.getElementById("kelime").textContent = gorunenKelime.join(" ");
+      document.getElementById("bardak").style.transform = "translateY(0)";
+      document.getElementById("durum").textContent = "";
+      document.getElementById("bardak").style.display = "block";
+      document.getElementById("harf").style.display = "inline";
+      destekleriYenile();
+    }
+
+    function tahminEt() {
+      const harfInput = document.getElementById("harf");
+      const harf = harfInput.value.toUpperCase();
+      harfInput.value = "";
+
+      if (!harf || harf.length !== 1 || !harf.match(/[A-ZÇĞİÖŞÜ]/)) {
+        alert("Lütfen geçerli bir harf girin.");
+        return;
+      }
+
+      let dogru = false;
+      for (let i = 0; i < gizliKelime.length; i++) {
+        if (gizliKelime[i] === harf) {
+          gorunenKelime[i] = harf;
+          dogru = true;
+        }
+      }
+
+      if (!dogru) {
+        kalanHak--;
+        destekleriYenile();
+        if (kalanHak === 0) {
+          document.getElementById("bardak").style.transform = "translateY(200px)";
+          document.getElementById("durum").textContent = "Bardak düştü! Kelime: " + gizliKelime;
+          setTimeout(() => sonrakiKelime(), 2000);
+        }
+      }
+
+      document.getElementById("kelime").textContent = gorunenKelime.join(" ");
+      if (!gorunenKelime.includes("_")) {
+        document.getElementById("durum").textContent = "Tebrikler! 🎉";
+        setTimeout(() => sonrakiKelime(), 1500);
+      }
+    }
+
+    function sonrakiKelime() {
+      kelimeIndex++;
+      if (kelimeIndex < kelimeler.length) {
+        oyunuSifirla();
+      } else {
+        document.getElementById("kelime").textContent = "Tüm kelimeleri bildin! 🇵🇸🖥";
+        document.getElementById("destekler").innerHTML = "";
+        document.getElementById("bardak").style.display = "none";
+        document.getElementById("harf").style.display = "none";
+      }
+    }
+
+    function checkUzay() {
+      const cevap = document.getElementById("uzayInput").value.toLowerCase();
+      const sonuc = document.getElementById("uzaySonuc");
+      if (cevap === "mars") {
+        sonuc.textContent = "Doğru cevap! 🚀";
+      } else {
+        sonuc.textContent = "Yanlış cevap. Tekrar dene!";
+      }
+    }
+
+    oyunuSifirla();
+  </script>
+</body>
+</html>

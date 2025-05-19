@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TETRİS</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+            background-image: url('pembe.jpg');
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 20;
+
+
+            .baslik-kutusu {
+      display: inline-block;
+      background-color: #00b380;
+      color: #e0ffef;
+      padding: 15px 40px;
+      margin: 30px auto 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+     h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+
+        }
+        .game-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        #game-board {
+            border: 5px solid #ff9e7d;
+            border-radius: 8px;
+            background-color: #ffeedd;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+        }
+        .next-piece-container {
+            width: 120px;
+            height: 120px;
+            margin: 10px auto;
+            background-color: #ffeedd;
+            border: 3px solid #ff9e7d;
+            border-radius: 8px;
+            position: relative;
+        }
+        .score {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin: 10px 0;
+        }
+        .level {
+            font-size: 1.5em;
+            color: #43b581;
+            margin: 10px 0;
+        }
+        .lines {
+            font-size: 1.3em;
+            color: #7289da;
+            margin: 10px 0;
+        }
+        .controls {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .controls h2 {
+            color: #43b581;
+            margin-top: 0;
+        }
+        .controls p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+        .controls img {
+            margin: 10px;
+            vertical-align: middle;
+        }
+        button {
+            background-color: #ff9e7d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 10px 5px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        button:hover {
+            background-color: #ff6b6b;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            text-align: center;
+            display: none;
+        }
+        .game-over h2 {
+            color: #ff6b6b;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .game-over p {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .touch-controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        .touch-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+            background-color: #ff9e7d;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .touch-btn:active {
+            transform: translateY(2px);
+            background-color: #ff6b6b;
+        }
+        @media (min-width: 769px) {
+            .touch-controls {
+                display: none; /* Masaüstünde dokunmatik kontrolleri gizle */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="baslik-kutusu">
+        <h1>TETRİS</h1>
+    </div>
+
+
+    <div class="game-container">
+        <canvas id="game-board" width="300" height="600"></canvas>
+
+        <div class="info-panel">
+            <div>
+                <h2>Sıradaki Parça</h2>
+                <div class="next-piece-container">
+                    <canvas id="next-piece" width="120" height="120"></canvas>
+                </div>
+            </div>
+
+            <div>
+                <div class="score">Puan: <span id="score">0</span></div>
+                <div class="level">Seviye: <span id="level">1</span></div>
+                <div class="lines">Çizgiler: <span id="lines">0</span></div>
+            </div>
+
+            <div>
+                <button id="start-button">Başla</button>
+                <button id="pause-button">Duraklat</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <h2>Kontroller</h2>
+        <p>⬅️ Sol Ok: Sola hareket</p>
+        <p>➡️ Sağ Ok: Sağa hareket</p>
+        <p>⬇️ Aşağı Ok: Hızlı düşür</p>
+        <p>⬆️ Yukarı Ok: Çevir</p>
+        <p>Boşluk: Anında düşür</p>
+
+        <!-- Mobil dokunmatik kontrolle için butonlar -->
+        <div class="touch-controls">
+            <button id="move-left" class="touch-btn">⬅️</button>
+            <button id="move-down" class="touch-btn">⬇️</button>
+            <button id="rotate" class="touch-btn">🔄</button>
+            <button id="move-right" class="touch-btn">➡️</button>
+            <button id="hard-drop" class="touch-btn">⏬</button>
+        </div>
+    </div>
+
+    <div id="game-over" class="game-over">
+        <h2>Oyun Bitti!</h2>
+        <p>Puanın: <span id="final-score">0</span></p>
+        <button id="play-again">Tekrar Oyna</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Canvas ve 2D bağlamı al
+            const canvas = document.getElementById('game-board');
+            const ctx = canvas.getContext('2d');
+            const nextPieceCanvas = document.getElementById('next-piece');
+            const nextPieceCtx = nextPieceCanvas.getContext('2d');
+
+            // Oyun değişkenleri
+            const COLS = 10;
+            const ROWS = 20;
+
+            // Mobil cihazlarda yeniden boyutlandırma
+            function resizeGameCanvas() {
+                if (window.innerWidth <= 768) {
+                    // Mobil cihazlarda oranı koru
+                    const maxWidth = Math.min(window.innerWidth * 0.9, 300);
+                    const ratio = ROWS / COLS; // 20/10 = 2
+                    canvas.style.width = maxWidth + 'px';
+                    canvas.style.height = (maxWidth * ratio) + 'px';
+                } else {
+                    canvas.style.width = '';
+                    canvas.style.height = '';
+                }
+            }
+
+            // Sayfa yüklendiğinde ve boyutu değiştiğinde çalıştır
+            resizeGameCanvas();
+            window.addEventListener('resize', resizeGameCanvas);
+            const COLORS = [
+                '#FF9AA2', // Pembe
+                '#FFB7B2', // Açık pembe
+                '#FFDAC1', // Şeftali
+                '#E2F0CB', // Açık yeşil
+                '#B5EAD7', // Mint
+                '#C7CEEA', // Açık mavi
+                '#9ED2FF'  // Parlak mavi
+            ];
+            const SHAPES = [
+                [[1, 1, 1, 1]],                 // I parçası
+                [[1, 1], [1, 1]],               // O parçası
+                [[0, 1, 0], [1, 1, 1]],         // T parçası
+                [[1, 1, 0], [0, 1, 1]],         // Z parçası
+                [[0, 1, 1], [1, 1, 0]],         // S parçası
+                [[1, 0, 0], [1, 1, 1]],         // L parçası
+                [[0, 0, 1], [1, 1, 1]]          // J parçası
+            ];
+
+            // Oyun tahtası ve sıradaki parça
+            let board = createBoard();
+            let currentPiece = getRandomPiece();
+            let nextPiece = getRandomPiece();
+
+            // Oyun durumu değişkenleri
+            let score = 0;
+            let level = 1;
+            let lines = 0;
+            let dropCounter = 0;
+            let dropInterval = 1000;
+            let lastTime = 0;
+            let paused = false;
+            let gameOver = false;
+            let gameActive = false;
+
+            // DOM elemanları
+            const scoreElement = document.getElementById('score');
+            const levelElement = document.getElementById('level');
+            const linesElement = document.getElementById('lines');
+            const startButton = document.getElementById('start-button');
+            const pauseButton = document.getElementById('pause-button');
+            const gameOverElement = document.getElementById('game-over');
+            const finalScoreElement = document.getElementById('final-score');
+            const playAgainButton = document.getElementById('play-again');
+
+            // Boş oyun tahtası oluştur
+            function createBoard() {
+                let board = [];
+                for (let row = 0; row < ROWS; row++) {
+                    board[row] = Array(COLS).fill(0);
+                }
+                return board;
+            }
+
+            // Rastgele parça oluştur
+            function getRandomPiece() {
+                const type = Math.floor(Math.random() * SHAPES.length);
+                const shape = JSON.parse(JSON.stringify(SHAPES[type])); // Derin kopya
+
+                const piece = {
+                    shape: shape,
+                    color: COLORS[type],
+                    x: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2),
+                    y: 0
+                };
+                return piece;
+            }
+
+            // Oyun tahtasını çiz
+            function drawBoard() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const blockSize = canvas.width / COLS;
+
+                // Izgarayı çiz
+                ctx.strokeStyle = '#DDDDDD';
+                ctx.lineWidth = 0.5;
+
+                for (let row = 0; row < ROWS; row++) {
+                    for (let col = 0; col < COLS; col++) {
+                        if (board[row][col]) {
+                            // Dolu blok
+                            const colorIndex = board[row][col] - 1;
+                            if (colorIndex >= 0 && colorIndex < COLORS.length) {
+                                drawBlock(ctx, col, row, COLORS[colorIndex]);
+                            } else {
+                                // Geçersiz renk indeksi, güvenli bir renk kullan
+                                drawBlock(ctx, col, row, COLORS[0]);
+                            }
+                        } else {
+                            // Boş ızgara
+                            ctx.strokeRect(col * blockSize, row * blockSize, blockSize, blockSize);
+                        }
+                    }
+                }
+
+                // Mevcut parçayı çiz
+                if (currentPiece && currentPiece.shape) {
+                    ctx.save();
+                    try {
+                        for (let row = 0; row < currentPiece.shape.length; row++) {
+                            for (let col = 0; col < currentPiece.shape[row].length; col++) {
+                                if (currentPiece.shape[row][col]) {
+                                    const boardX = currentPiece.x + col;
+                                    const boardY = currentPiece.y + row;
+
+                                    // Oyun tahtası içinde olduğundan emin ol
+                                    if (boardY >= 0 && boardY < ROWS && boardX >= 0 && boardX < COLS) {
+                                        drawBlock(
+                                            ctx,
+                                            boardX,
+                                            boardY,
+                                            currentPiece.color
+                                        );
+                                    }
+                                }
+                            }
+                        }
+
+                        // Gölgeyi çiz (parçanın düşeceği yer)
+                        drawShadow();
+                    } catch (e) {
+                        console.error("Parça çiziminde hata:", e);
+                    }
+                    ctx.restore();
+                }
+            }
+
+            // Parçanın gölgesini çiz (düşeceği yer)
+            function drawShadow() {
+                if (!currentPiece || !currentPiece.shape) return;
+
+                const shadowPiece = {
+                    ...currentPiece,
+                    y: currentPiece.y
+                };
+
+                // Parçayı en aşağıya düşür
+                while (!checkCollision(shadowPiece, 0, 1)) {
+                    shadowPiece.y++;
+                }
+
+                // Gölgeyi çiz
+                ctx.save();
+                ctx.globalAlpha = 0.2;
+                try {
+                    for (let row = 0; row < shadowPiece.shape.length; row++) {
+                        for (let col = 0; col < shadowPiece.shape[row].length; col++) {
+                            if (shadowPiece.shape[row][col]) {
+                                const boardX = shadowPiece.x + col;
+                                const boardY = shadowPiece.y + row;
+
+                                // Oyun tahtası içinde olduğundan emin ol
+                                if (boardY >= 0 && boardY < ROWS && boardX >= 0 && boardX < COLS) {
+                                    drawBlock(
+                                        ctx,
+                                        boardX,
+                                        boardY,
+                                        shadowPiece.color
+                                    );
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Gölge çiziminde hata:", e);
+                }
+                ctx.restore();
+            }
+
+            // Sıradaki parçayı çiz
+            function drawNextPiece() {
+                nextPieceCtx.clearRect(0, 0, nextPieceCanvas.width, nextPieceCanvas.height);
+
+                if (!nextPiece) return;
+
+                const blockSize = 25;
+                const offsetX = (nextPieceCanvas.width - nextPiece.shape[0].length * blockSize) / 2;
+                const offsetY = (nextPieceCanvas.height - nextPiece.shape.length * blockSize) / 2;
+
+                try {
+                    for (let row = 0; row < nextPiece.shape.length; row++) {
+                        for (let col = 0; col < nextPiece.shape[row].length; col++) {
+                            if (nextPiece.shape[row][col]) {
+                                nextPieceCtx.save();
+                                nextPieceCtx.fillStyle = nextPiece.color;
+                                nextPieceCtx.fillRect(offsetX + col * blockSize, offsetY + row * blockSize, blockSize, blockSize);
+                                nextPieceCtx.lineWidth = 2;
+                                nextPieceCtx.strokeStyle = 'white';
+                                nextPieceCtx.strokeRect(offsetX + col * blockSize, offsetY + row * blockSize, blockSize, blockSize);
+                                nextPieceCtx.restore();
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Sıradaki parça çizilirken hata oluştu:", e);
+                }
+            }
+
+            // Blok çizimi
+            function drawBlock(context, x, y, color) {
+                // Ekrandan taşma kontrolü
+                if (x < 0 || x >= COLS || y < 0 || y >= ROWS) {
+                    console.error(`Geçersiz blok konumu: (${x}, ${y})`);
+                    return;
+                }
+
+                const blockSize = canvas.width / COLS;
+                context.fillStyle = color;
+                context.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+
+                // Bloğu parlat
+                context.lineWidth = 2;
+                context.strokeStyle = 'white';
+                context.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
+
+                // 3D efekti için daha koyu kenarlar
+                context.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                context.fillRect(
+                    x * blockSize + blockSize - 4,
+                    y * blockSize + 4,
+                    4,
+                    blockSize - 8
+                );
+                context.fillRect(
+                    x * blockSize + 4,
+                    y * blockSize + blockSize - 4,
+                    blockSize - 8,
+                    4
+                );
+            }
+
+            // Çarpışma kontrolü
+            function checkCollision(piece, moveX, moveY) {
+                if (!piece || !piece.shape) return true;
+
+                try {
+                    for (let row = 0; row < piece.shape.length; row++) {
+                        for (let col = 0; col < piece.shape[row].length; col++) {
+                            if (!piece.shape[row][col]) continue;
+
+                            const newX = piece.x + col + moveX;
+                            const newY = piece.y + row + moveY;
+
+                            if (newX < 0 || newX >= COLS || newY >= ROWS) {
+                                return true;
+                            }
+
+                            if (newY < 0) {
+                                continue;
+                            }
+
+                            if (board[newY] && board[newY][newX]) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                } catch (e) {
+                    console.error("Çarpışma kontrolünde hata:", e);
+                    return true; // Hata durumunda çarpışma var kabul et
+                }
+            }
+
+            // Parçayı hareket ettir
+            function movePiece(dir) {
+                if (!gameActive || paused || gameOver) return;
+
+                if (!checkCollision(currentPiece, dir, 0)) {
+                    currentPiece.x += dir;
+                    drawBoard();
+                }
+            }
+
+            // Parçayı aşağı hareket ettir
+            function dropPiece() {
+                if (!gameActive || paused || gameOver) return;
+
+                if (!checkCollision(currentPiece, 0, 1)) {
+                    currentPiece.y++;
+                    drawBoard();
+                    return false;
+                } else {
+                    // Parça artık hareket edemez, tahtaya yerleştir
+                    mergePiece();
+                    checkLines();
+
+                    currentPiece = nextPiece;
+                    nextPiece = getRandomPiece();
+                    drawNextPiece();
+
+                    // Oyun bitip bitmediğini kontrol et
+                    if (checkCollision(currentPiece, 0, 0)) {
+                        gameOver = true;
+                        finalScoreElement.textContent = score;
+                        gameOverElement.style.display = 'block';
+                        gameActive = false;
+                    }
+
+                    return true;
+                }
+            }
+
+            // Parçayı tahtaya yerleştir
+            function mergePiece() {
+                if (!currentPiece || !currentPiece.shape) return;
+
+                try {
+                    for (let row = 0; row < currentPiece.shape.length; row++) {
+                        for (let col = 0; col < currentPiece.shape[row].length; col++) {
+                            if (currentPiece.shape[row][col]) {
+                                const boardY = currentPiece.y + row;
+                                const boardX = currentPiece.x + col;
+
+                                // Tahtanın sınırları içinde olduğunu kontrol et
+                                if (boardY >= 0 && boardY < ROWS && boardX >= 0 && boardX < COLS) {
+                                    const pieceIndex = SHAPES.findIndex(shape =>
+                                        JSON.stringify(shape) === JSON.stringify(currentPiece.shape));
+
+                                    board[boardY][boardX] = pieceIndex >= 0 ? pieceIndex + 1 : 1;
+                                } else {
+                                    console.error(`Geçersiz tahta pozisyonu: (${boardX}, ${boardY})`);
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Parça birleştirme hatası:", e);
+                }
+            }
+
+            // Parçayı çevir
+            function rotatePiece() {
+                if (!gameActive || paused || gameOver) return;
+
+                // Geçerli şekli kopyala
+                const originalShape = JSON.parse(JSON.stringify(currentPiece.shape));
+
+                try {
+                    const rotated = [];
+                    for (let col = 0; col < currentPiece.shape[0].length; col++) {
+                        rotated.push([]);
+                        for (let row = currentPiece.shape.length - 1; row >= 0; row--) {
+                            rotated[col].push(currentPiece.shape[row][col]);
+                        }
+                    }
+
+                    currentPiece.shape = rotated;
+
+                    // Eğer çarpışma varsa, çevirmeyi geri al
+                    if (checkCollision(currentPiece, 0, 0)) {
+                        currentPiece.shape = originalShape;
+
+                        // Duvardan uzaklaştırma denemesi
+                        // Sağ duvardan uzaklaştır
+                        if (!checkCollision(currentPiece, -1, 0)) {
+                            currentPiece.x -= 1;
+                            currentPiece.shape = rotated;
+                        }
+                        // Sol duvardan uzaklaştır
+                        else if (!checkCollision(currentPiece, 1, 0)) {
+                            currentPiece.x += 1;
+                            currentPiece.shape = rotated;
+                        }
+                        // Alt duvardan uzaklaştır
+                        else if (!checkCollision(currentPiece, 0, -1)) {
+                            currentPiece.y -= 1;
+                            currentPiece.shape = rotated;
+                        } else {
+                            // Hiçbir şekilde çeviremiyorsak orijinal şekle geri dön
+                            currentPiece.shape = originalShape;
+                        }
+                    }
+
+                    drawBoard();
+                } catch (e) {
+                    console.error("Döndürme sırasında hata:", e);
+                    currentPiece.shape = originalShape;
+                }
+            }
+
+            // Dolu çizgileri kontrol et
+            function checkLines() {
+                let linesCleared = 0;
+
+                for (let row = ROWS - 1; row >= 0; row--) {
+                    if (board[row].every(cell => cell !== 0)) {
+                        // Çizgiyi sil ve yeni bir çizgi ekle
+                        board.splice(row, 1);
+                        board.unshift(Array(COLS).fill(0));
+                        linesCleared++;
+                        row++; // Aynı satırı tekrar kontrol et
+                    }
+                }
+
+                if (linesCleared > 0) {
+                    // Puan hesapla (daha fazla çizgi = daha fazla puan)
+                    const pointsPerLine = [40, 100, 300, 1200]; // 1, 2, 3, 4 çizgi için
+                    score += pointsPerLine[linesCleared - 1] * level;
+                    lines += linesCleared;
+
+                    // Seviyeyi güncelle (her 10 çizgi için 1 seviye)
+                    level = Math.floor(lines / 10) + 1;
+
+                    // Düşme hızını güncelle
+                    dropInterval = Math.max(100, 1000 - (level - 1) * 100);
+
+                    // UI'yı güncelle
+                    scoreElement.textContent = score;
+                    levelElement.textContent = level;
+                    linesElement.textContent = lines;
+
+                    // Animasyon efekti
+                    playLineClearAnimation(linesCleared);
+                }
+            }
+
+            // Çizgi temizleme animasyonu
+            function playLineClearAnimation(count) {
+                // Basit bir animasyon: ekranı hafifçe parlat
+                canvas.style.filter = 'brightness(1.5)';
+                setTimeout(() => {
+                    canvas.style.filter = 'none';
+                }, 200);
+            }
+
+            // Parçayı anında düşür
+            function hardDrop() {
+                if (!gameActive || paused || gameOver) return;
+
+                while (!dropPiece()) {
+                    // Parça düşene kadar devam et
+                }
+            }
+
+            // Oyun döngüsü
+            function update(time = 0) {
+                if (!gameActive) {
+                    requestAnimationFrame(update);
+                    return;
+                }
+
+                const deltaTime = time - lastTime;
+                lastTime = time;
+
+                if (!paused) {
+                    dropCounter += deltaTime;
+                    if (dropCounter > dropInterval) {
+                        dropPiece();
+                        dropCounter = 0;
+                    }
+                }
+
+                try {
+                    drawBoard();
+                } catch (e) {
+                    console.error("Çizim hatası:", e);
+                }
+
+                requestAnimationFrame(update);
+            }
+
+            // Oyunu başlat
+            function startGame() {
+                if (gameActive && !paused) return;
+
+                if (gameOver || !gameActive) {
+                    // Oyunu sıfırla
+                    board = createBoard();
+                    score = 0;
+                    level = 1;
+                    lines = 0;
+                    dropInterval = 1000;
+
+                    scoreElement.textContent = score;
+                    levelElement.textContent = level;
+                    linesElement.textContent = lines;
+
+                    currentPiece = getRandomPiece();
+                    nextPiece = getRandomPiece();
+                    drawNextPiece();
+
+                    gameOver = false;
+                    gameOverElement.style.display = 'none';
+                }
+
+                gameActive = true;
+                paused = false;
+                pauseButton.textContent = 'Duraklat';
+
+                lastTime = 0;
+                update();
+            }
+
+            // Oyunu duraklat/devam ettir
+            function togglePause() {
+                if (!gameActive || gameOver) return;
+
+                paused = !paused;
+                pauseButton.textContent = paused ? 'Devam Et' : 'Duraklat';
+            }
+
+            // Tuş olaylarını dinle
+            document.addEventListener('keydown', (e) => {
+                if (gameOver) return;
+
+                switch (e.code) {
+                    case 'ArrowLeft':
+                        movePiece(-1);
+                        e.preventDefault();
+                        break;
+                    case 'ArrowRight':
+                        movePiece(1);
+                        e.preventDefault();
+                        break;
+                    case 'ArrowDown':
+                        dropPiece();
+                        e.preventDefault();
+                        break;
+                    case 'ArrowUp':
+                        rotatePiece();
+                        e.preventDefault();
+                        break;
+                    case 'Space':
+                        hardDrop();
+                        e.preventDefault();
+                        break;
+                    case 'Escape':
+                        togglePause();
+                        e.preventDefault();
+                        break;
+                }
+            });
+
+            // Oyun kontrol butonları
+            startButton.addEventListener('click', startGame);
+            pauseButton.addEventListener('click', togglePause);
+            playAgainButton.addEventListener('click', startGame);
+
+            // Dokunmatik kontrol butonları
+            document.getElementById('move-left')?.addEventListener('click', () => movePiece(-1));
+            document.getElementById('move-right')?.addEventListener('click', () => movePiece(1));
+            document.getElementById('move-down')?.addEventListener('click', () => dropPiece());
+            document.getElementById('rotate')?.addEventListener('click', rotatePiece);
+            document.getElementById('hard-drop')?.addEventListener('click', hardDrop);
+
+            // Oyun başlamadan önce tahtayı çiz
+            drawBoard();
+            drawNextPiece();
+        });
+    </script>
+</body>
+</html>
