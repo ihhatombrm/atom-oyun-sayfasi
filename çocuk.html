@@ -12,25 +12,24 @@
             background-size: cover;
             background-position: center;
             margin: 0;
-            padding: 20;
-
-
-            .baslik-kutusu {
-      display: inline-block;
-      background-color: #00b380;
-      color: #e0ffef;
-      padding: 15px 40px;
-      margin: 30px auto 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-     h1 {
-      margin: 0;
-      font-size: 2.5rem;
-    }
-
+            padding: 20px;
         }
+
+        .baslik-kutusu {
+            display: inline-block;
+            background-color: #00b380;
+            color: #e0ffef;
+            padding: 15px 40px;
+            margin: 30px auto 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
         .game-container {
             display: flex;
             justify-content: center;
@@ -78,6 +77,11 @@
         .lines {
             font-size: 1.3em;
             color: #7289da;
+            margin: 10px 0;
+        }
+        .blocks {
+            font-size: 1.3em;
+            color: #9b59b6;
             margin: 10px 0;
         }
         .controls {
@@ -169,7 +173,7 @@
         }
         @media (min-width: 769px) {
             .touch-controls {
-                display: none; /* Masaüstünde dokunmatik kontrolleri gizle */
+                display: none;
             }
         }
     </style>
@@ -178,7 +182,6 @@
     <div class="baslik-kutusu">
         <h1>TETRİS</h1>
     </div>
-
 
     <div class="game-container">
         <canvas id="game-board" width="300" height="600"></canvas>
@@ -195,6 +198,7 @@
                 <div class="score">Puan: <span id="score">0</span></div>
                 <div class="level">Seviye: <span id="level">1</span></div>
                 <div class="lines">Çizgiler: <span id="lines">0</span></div>
+                <div class="blocks">Bloklar: <span id="blocks">0</span></div>
             </div>
 
             <div>
@@ -211,8 +215,8 @@
         <p>⬇️ Aşağı Ok: Hızlı düşür</p>
         <p>⬆️ Yukarı Ok: Çevir</p>
         <p>Boşluk: Anında düşür</p>
+        <p><strong>Her 10 blok yerleştirdiğinizde level atlar!</strong></p>
 
-        <!-- Mobil dokunmatik kontrolle için butonlar -->
         <div class="touch-controls">
             <button id="move-left" class="touch-btn">⬅️</button>
             <button id="move-down" class="touch-btn">⬇️</button>
@@ -243,9 +247,8 @@
             // Mobil cihazlarda yeniden boyutlandırma
             function resizeGameCanvas() {
                 if (window.innerWidth <= 768) {
-                    // Mobil cihazlarda oranı koru
                     const maxWidth = Math.min(window.innerWidth * 0.9, 300);
-                    const ratio = ROWS / COLS; // 20/10 = 2
+                    const ratio = ROWS / COLS;
                     canvas.style.width = maxWidth + 'px';
                     canvas.style.height = (maxWidth * ratio) + 'px';
                 } else {
@@ -254,9 +257,9 @@
                 }
             }
 
-            // Sayfa yüklendiğinde ve boyutu değiştiğinde çalıştır
             resizeGameCanvas();
             window.addEventListener('resize', resizeGameCanvas);
+
             const COLORS = [
                 '#FF9AA2', // Pembe
                 '#FFB7B2', // Açık pembe
@@ -285,6 +288,7 @@
             let score = 0;
             let level = 1;
             let lines = 0;
+            let blocksPlaced = 0; // Yerleştirilen blok sayısı
             let dropCounter = 0;
             let dropInterval = 1000;
             let lastTime = 0;
@@ -296,6 +300,7 @@
             const scoreElement = document.getElementById('score');
             const levelElement = document.getElementById('level');
             const linesElement = document.getElementById('lines');
+            const blocksElement = document.getElementById('blocks');
             const startButton = document.getElementById('start-button');
             const pauseButton = document.getElementById('pause-button');
             const gameOverElement = document.getElementById('game-over');
@@ -314,7 +319,7 @@
             // Rastgele parça oluştur
             function getRandomPiece() {
                 const type = Math.floor(Math.random() * SHAPES.length);
-                const shape = JSON.parse(JSON.stringify(SHAPES[type])); // Derin kopya
+                const shape = JSON.parse(JSON.stringify(SHAPES[type]));
 
                 const piece = {
                     shape: shape,
@@ -338,16 +343,13 @@
                 for (let row = 0; row < ROWS; row++) {
                     for (let col = 0; col < COLS; col++) {
                         if (board[row][col]) {
-                            // Dolu blok
                             const colorIndex = board[row][col] - 1;
                             if (colorIndex >= 0 && colorIndex < COLORS.length) {
                                 drawBlock(ctx, col, row, COLORS[colorIndex]);
                             } else {
-                                // Geçersiz renk indeksi, güvenli bir renk kullan
                                 drawBlock(ctx, col, row, COLORS[0]);
                             }
                         } else {
-                            // Boş ızgara
                             ctx.strokeRect(col * blockSize, row * blockSize, blockSize, blockSize);
                         }
                     }
@@ -363,7 +365,6 @@
                                     const boardX = currentPiece.x + col;
                                     const boardY = currentPiece.y + row;
 
-                                    // Oyun tahtası içinde olduğundan emin ol
                                     if (boardY >= 0 && boardY < ROWS && boardX >= 0 && boardX < COLS) {
                                         drawBlock(
                                             ctx,
@@ -376,7 +377,6 @@
                             }
                         }
 
-                        // Gölgeyi çiz (parçanın düşeceği yer)
                         drawShadow();
                     } catch (e) {
                         console.error("Parça çiziminde hata:", e);
@@ -385,7 +385,7 @@
                 }
             }
 
-            // Parçanın gölgesini çiz (düşeceği yer)
+            // Parçanın gölgesini çiz
             function drawShadow() {
                 if (!currentPiece || !currentPiece.shape) return;
 
@@ -394,12 +394,10 @@
                     y: currentPiece.y
                 };
 
-                // Parçayı en aşağıya düşür
                 while (!checkCollision(shadowPiece, 0, 1)) {
                     shadowPiece.y++;
                 }
 
-                // Gölgeyi çiz
                 ctx.save();
                 ctx.globalAlpha = 0.2;
                 try {
@@ -409,7 +407,6 @@
                                 const boardX = shadowPiece.x + col;
                                 const boardY = shadowPiece.y + row;
 
-                                // Oyun tahtası içinde olduğundan emin ol
                                 if (boardY >= 0 && boardY < ROWS && boardX >= 0 && boardX < COLS) {
                                     drawBlock(
                                         ctx,
@@ -458,7 +455,6 @@
 
             // Blok çizimi
             function drawBlock(context, x, y, color) {
-                // Ekrandan taşma kontrolü
                 if (x < 0 || x >= COLS || y < 0 || y >= ROWS) {
                     console.error(`Geçersiz blok konumu: (${x}, ${y})`);
                     return;
@@ -468,12 +464,10 @@
                 context.fillStyle = color;
                 context.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
 
-                // Bloğu parlat
                 context.lineWidth = 2;
                 context.strokeStyle = 'white';
                 context.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
 
-                // 3D efekti için daha koyu kenarlar
                 context.fillStyle = 'rgba(0, 0, 0, 0.1)';
                 context.fillRect(
                     x * blockSize + blockSize - 4,
@@ -517,7 +511,7 @@
                     return false;
                 } catch (e) {
                     console.error("Çarpışma kontrolünde hata:", e);
-                    return true; // Hata durumunda çarpışma var kabul et
+                    return true;
                 }
             }
 
@@ -542,6 +536,24 @@
                 } else {
                     // Parça artık hareket edemez, tahtaya yerleştir
                     mergePiece();
+
+                    // Blok sayısını artır ve level kontrolü yap
+                    blocksPlaced++;
+                    blocksElement.textContent = blocksPlaced;
+
+                    // Her 10 blokta bir level atla
+                    const newLevel = Math.floor(blocksPlaced / 10) + 1;
+                    if (newLevel > level) {
+                        level = newLevel;
+                        levelElement.textContent = level;
+
+                        // Düşme hızını artır (daha zor seviyeler)
+                        dropInterval = Math.max(100, 1000 - (level - 1) * 80);
+
+                        // Level atlama animasyonu
+                        playLevelUpAnimation();
+                    }
+
                     checkLines();
 
                     currentPiece = nextPiece;
@@ -571,7 +583,6 @@
                                 const boardY = currentPiece.y + row;
                                 const boardX = currentPiece.x + col;
 
-                                // Tahtanın sınırları içinde olduğunu kontrol et
                                 if (boardY >= 0 && boardY < ROWS && boardX >= 0 && boardX < COLS) {
                                     const pieceIndex = SHAPES.findIndex(shape =>
                                         JSON.stringify(shape) === JSON.stringify(currentPiece.shape));
@@ -592,7 +603,6 @@
             function rotatePiece() {
                 if (!gameActive || paused || gameOver) return;
 
-                // Geçerli şekli kopyala
                 const originalShape = JSON.parse(JSON.stringify(currentPiece.shape));
 
                 try {
@@ -606,27 +616,21 @@
 
                     currentPiece.shape = rotated;
 
-                    // Eğer çarpışma varsa, çevirmeyi geri al
                     if (checkCollision(currentPiece, 0, 0)) {
                         currentPiece.shape = originalShape;
 
-                        // Duvardan uzaklaştırma denemesi
-                        // Sağ duvardan uzaklaştır
                         if (!checkCollision(currentPiece, -1, 0)) {
                             currentPiece.x -= 1;
                             currentPiece.shape = rotated;
                         }
-                        // Sol duvardan uzaklaştır
                         else if (!checkCollision(currentPiece, 1, 0)) {
                             currentPiece.x += 1;
                             currentPiece.shape = rotated;
                         }
-                        // Alt duvardan uzaklaştır
                         else if (!checkCollision(currentPiece, 0, -1)) {
                             currentPiece.y -= 1;
                             currentPiece.shape = rotated;
                         } else {
-                            // Hiçbir şekilde çeviremiyorsak orijinal şekle geri dön
                             currentPiece.shape = originalShape;
                         }
                     }
@@ -644,43 +648,39 @@
 
                 for (let row = ROWS - 1; row >= 0; row--) {
                     if (board[row].every(cell => cell !== 0)) {
-                        // Çizgiyi sil ve yeni bir çizgi ekle
                         board.splice(row, 1);
                         board.unshift(Array(COLS).fill(0));
                         linesCleared++;
-                        row++; // Aynı satırı tekrar kontrol et
+                        row++;
                     }
                 }
 
                 if (linesCleared > 0) {
-                    // Puan hesapla (daha fazla çizgi = daha fazla puan)
-                    const pointsPerLine = [40, 100, 300, 1200]; // 1, 2, 3, 4 çizgi için
+                    const pointsPerLine = [40, 100, 300, 1200];
                     score += pointsPerLine[linesCleared - 1] * level;
                     lines += linesCleared;
 
-                    // Seviyeyi güncelle (her 10 çizgi için 1 seviye)
-                    level = Math.floor(lines / 10) + 1;
-
-                    // Düşme hızını güncelle
-                    dropInterval = Math.max(100, 1000 - (level - 1) * 100);
-
-                    // UI'yı güncelle
                     scoreElement.textContent = score;
-                    levelElement.textContent = level;
                     linesElement.textContent = lines;
 
-                    // Animasyon efekti
                     playLineClearAnimation(linesCleared);
                 }
             }
 
             // Çizgi temizleme animasyonu
             function playLineClearAnimation(count) {
-                // Basit bir animasyon: ekranı hafifçe parlat
                 canvas.style.filter = 'brightness(1.5)';
                 setTimeout(() => {
                     canvas.style.filter = 'none';
                 }, 200);
+            }
+
+            // Level atlama animasyonu
+            function playLevelUpAnimation() {
+                canvas.style.filter = 'hue-rotate(90deg) brightness(1.3)';
+                setTimeout(() => {
+                    canvas.style.filter = 'none';
+                }, 300);
             }
 
             // Parçayı anında düşür
@@ -724,16 +724,17 @@
                 if (gameActive && !paused) return;
 
                 if (gameOver || !gameActive) {
-                    // Oyunu sıfırla
                     board = createBoard();
                     score = 0;
                     level = 1;
                     lines = 0;
+                    blocksPlaced = 0; // Blok sayısını sıfırla
                     dropInterval = 1000;
 
                     scoreElement.textContent = score;
                     levelElement.textContent = level;
                     linesElement.textContent = lines;
+                    blocksElement.textContent = blocksPlaced;
 
                     currentPiece = getRandomPiece();
                     nextPiece = getRandomPiece();
